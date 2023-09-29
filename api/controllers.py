@@ -23,5 +23,12 @@ def post_items():
 def get_inventory():
     # Return the list of items
     # Return the item name and total quantity
-    return jsonify(list(db.mongo.db.schema.find({}, {"_id": False})))
+    pipeline = [
+    {"$unwind": "$items"},
+    {"$group": {"_id": "$items", "inventory": {"$sum": "$inventory"}}},
+    {"$project": {"_id": 0, "items": "$_id", "inventory": "$inventory"}},
+    ]
+    return jsonify(list(db.mongo.db.collection.aggregate(pipeline)))
+
+    # return jsonify(list(db.mongo.db.schema.find({}, {"_id": False})))
 
